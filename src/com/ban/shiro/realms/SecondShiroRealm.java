@@ -12,11 +12,11 @@ import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.util.ByteSource;
 
-public class ShiroRealm extends AuthenticatingRealm {
+public class SecondShiroRealm extends AuthenticatingRealm {
 
 	@Override
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-		System.out.println("[FirstShiroRealm] doGetAuthenticationInfo");
+		System.out.println("[SecondShiroRealm] doGetAuthenticationInfo");
 		// 1.把authenticationToken转换为UsernamePasswordToken
 		UsernamePasswordToken upToken = (UsernamePasswordToken) token;
 		// 2.获取用户名
@@ -39,14 +39,14 @@ public class ShiroRealm extends AuthenticatingRealm {
 		Object principals = username;
 		// credentials 数据库里获取的密码
 		Object credentials = null;
-		if("admin".equals(username)) {
-			credentials = "038bdaf98f2037b31f1e75b5b4c9b26e";
-		}else if("user".equals(username)) {
-			credentials = "098d2c478e9c11555ce2823231e02ec1";
+		if ("admin".equals(username)) {
+			credentials = "ce2f6417c7e1d32c1d81a797ee0b499f87c5de06";
+		} else if ("user".equals(username)) {
+			credentials = "073d4c3ae812935f23cb3f2a71943f49e082a718";
 		}
 		// realmName 当前realm的名称
 
-		//盐值
+		// 盐值
 		ByteSource credentialsSalt = ByteSource.Util.bytes(username);
 		// 密码的比对通过AuthenticatingRealm的credentialsMatcher进行比对
 		SimpleAuthenticationInfo info = null;
@@ -74,9 +74,9 @@ public class ShiroRealm extends AuthenticatingRealm {
 	// }
 
 	public static void main(String[] args) {
-		String hashAlgorithmName = "MD5";
+		String hashAlgorithmName = "SHA1";
 		Object credentials = "123456";
-		Object salt = ByteSource.Util.bytes("user");
+		Object salt = ByteSource.Util.bytes("admin");
 		int hashIterations = 1024;
 		Object result = new SimpleHash(hashAlgorithmName, credentials, salt, hashIterations);
 		System.out.println(result);

@@ -8,81 +8,87 @@
 	<bean id="securityManager"
 		class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
 		<property name="cacheManager" ref="cacheManager" />
-		<property name="realm" ref="jdbcRealm" />
+		<property name="authenticator" ref="authenticator" />
+		<property name="realms">
+			<list>
+				<ref bean="jdbcRealm" />
+				<ref bean="secondShiroRealm" />
+			</list>
+		</property>
+		<!-- <property name="realm" ref="jdbcRealm"></property> -->
 	</bean>
 
 	<!-- 2配置CacheManager 2.1需要加入Ehcache的jar包以及配置文件 -->
 	<bean id="cacheManager"
 		class="org.apache.shiro.cache.ehcache.EhCacheManager">
-		<!-- Set a net.sf.ehcache.CacheManager instance here if you already have 
-			one. If not, a new one will be creaed with a default config: <property name="cacheManager" 
-			ref="ehCacheManager"/> -->
-		<!-- If you don't have a pre-built net.sf.ehcache.CacheManager instance 
-			to inject, but you want a specific Ehcache configuration to be used, specify 
-			that here. If you don't, a default will be used.: -->
 		<property name="cacheManagerConfigFile"
 			value="classpath:ehcache.xml" />
 	</bean>
-	<!-- 
-		3配置Realm 
-		 3.1实现Realm接口的bean
-	-->
-	<bean id="jdbcRealm"
-		class="com.ban.shiro.realms.ShiroRealm">
+
+	<bean id="authenticator"
+		class="org.apache.shiro.authc.pam.ModularRealmAuthenticator">
+		<property name="authenticationStrategy">
+			<bean class="org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy"></bean>
+		</property>
+	</bean>
+
+	<!-- 3配置Realm 3.1实现Realm接口的bean -->
+	<bean id="jdbcRealm" class="com.ban.shiro.realms.ShiroRealm">
 		<property name="credentialsMatcher">
-			<bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+			<bean
+				class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
 				<property name="hashAlgorithmName" value="MD5"></property>
 				<property name="hashIterations" value="1024"></property>
 			</bean>
 		</property>
 	</bean>
-	
-	<!-- 4、
-		配置 lifecycleBeanPostProcessor。 可以自动的来调用配在Spring IOC容器中shiro bean的声明周期方法
-	-->
- 	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
- 	
- 	<!-- 
- 		5.启用IOC容器中使用shiro的注解，但必须在配置了lifecycleBeanPostProcessor之后才可以使用
- 	 -->
- 	     <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
-          depends-on="lifecycleBeanPostProcessor"/>
-    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
-        <property name="securityManager" ref="securityManager"/>
-    </bean>
-    
-    <!-- 
-    	6、配置shiroFilter
-    	 6.1  id必须和web.xml文件中配置的DelegatingFilterProxy的filtername一致
-     -->
-    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
-        <property name="securityManager" ref="securityManager"/>
-        <property name="loginUrl" value="/login.jsp"/>
-        <property name="successUrl" value="/list.jsp"/>
-        <property name="unauthorizedUrl" value="/unauthorized.jsp"/>
-        <!-- The 'filters' property is not necessary since any declared javax.servlet.Filter bean
-             defined will be automatically acquired and available via its beanName in chain
-             definitions, but you can perform overrides or parent/child consolidated configuration
-             here if you like: -->
-        <!-- <property name="filters">
-            <util:map>
-                <entry key="aName" value-ref="someFilterPojo"/>
-            </util:map>
-        </property> -->
-        <!-- 
-        	配置哪些页面需要被保护，以及访问这些页面需要的权限
-        	1）anon 可以被匿名访问
-        	2)authc 必须认证之后才能访问
-         -->
-        <property name="filterChainDefinitions">
-            <value>
-                /login.jsp = anon
-                /shiro/login = anon
-                /shiro/logout = logout
-                # everything else requires authentication:
-                /** = authc
-            </value>
-        </property>
-    </bean>
-    
+	<bean id="secondShiroRealm"
+		class="com.ban.shiro.realms.SecondShiroRealm">
+		<property name="credentialsMatcher">
+			<bean
+				class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+				<property name="hashAlgorithmName" value="SHA1"></property>
+				<property name="hashIterations" value="1024"></property>
+			</bean>
+		</property>
+	</bean>
+	<!-- 4、 配置 lifecycleBeanPostProcessor。 可以自动的来调用配在Spring IOC容器中shiro bean的声明周期方法 -->
+	<bean id="lifecycleBeanPostProcessor"
+		class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+
+	<!-- 5.启用IOC容器中使用shiro的注解，但必须在配置了lifecycleBeanPostProcessor之后才可以使用 -->
+	<bean
+		class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+		depends-on="lifecycleBeanPostProcessor" />
+	<bean
+		class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+	</bean>
+
+	<!-- 6、配置shiroFilter 6.1 id必须和web.xml文件中配置的DelegatingFilterProxy的filtername一致 -->
+	<bean id="shiroFilter"
+		class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager" />
+		<property name="loginUrl" value="/login.jsp" />
+		<property name="successUrl" value="/list.jsp" />
+		<property name="unauthorizedUrl" value="/unauthorized.jsp" />
+		<!-- The 'filters' property is not necessary since any declared javax.servlet.Filter 
+			bean defined will be automatically acquired and available via its beanName 
+			in chain definitions, but you can perform overrides or parent/child consolidated 
+			configuration here if you like: -->
+		<!-- <property name="filters"> <util:map> <entry key="aName" value-ref="someFilterPojo"/> 
+			</util:map> </property> -->
+		<!-- 配置哪些页面需要被保护，以及访问这些页面需要的权限 1）anon 可以被匿名访问 2)authc 必须认证之后才能访问 -->
+		<property name="filterChainDefinitions">
+			<value>
+				/login.jsp = anon
+				/shiro/login = anon
+				/shiro/logout = logout
+
+				#everything else requires authentication:
+				/** = authc
+			</value>
+		</property>
+	</bean>
+
 </beans>
