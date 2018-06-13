@@ -1,5 +1,8 @@
 package com.ban.shiro.realms;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -7,12 +10,16 @@ import org.apache.shiro.authc.LockedAccountException;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.realm.AuthenticatingRealm;
+import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.realm.Realm;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 
-public class ShiroRealm extends AuthenticatingRealm {
+public class ShiroRealm extends AuthorizingRealm {
 
 	@Override
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
@@ -80,6 +87,23 @@ public class ShiroRealm extends AuthenticatingRealm {
 		int hashIterations = 1024;
 		Object result = new SimpleHash(hashAlgorithmName, credentials, salt, hashIterations);
 		System.out.println(result);
+	}
+
+	//授权方法
+	@Override
+	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+		//1.从principals中获取登陆用户的信息  有顺序
+		Object principal = principals.getPrimaryPrincipal();
+		//2.利用登陆用户的信息来判断用户当前的角色（可能需要查询数据库）
+		Set<String> roles = new HashSet<>();
+		roles.add("user");
+		if("admin".equals(principal)) {
+			roles.add("admin");
+		}
+		//3.创建SimpleAuthenticationInfo，并设置reals属性
+		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo(roles) ;
+		//4.返回
+		return info;
 	}
 
 }

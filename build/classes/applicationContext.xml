@@ -28,7 +28,8 @@
 	<bean id="authenticator"
 		class="org.apache.shiro.authc.pam.ModularRealmAuthenticator">
 		<property name="authenticationStrategy">
-			<bean class="org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy"></bean>
+			<bean
+				class="org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy"></bean>
 		</property>
 	</bean>
 
@@ -84,7 +85,10 @@
 				/login.jsp = anon
 				/shiro/login = anon
 				/shiro/logout = logout
-
+				/user.jsp = roles[user]
+				/admin.jsp = roles[admin]
+				
+				
 				#everything else requires authentication:
 				/** = authc
 			</value>
