@@ -10,14 +10,26 @@ import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.ban.shiro.services.ShiroService;
 
 @Controller
 @RequestMapping("/shiro")
 public class ShiroHandler {
 	private static final transient Logger log = LoggerFactory.getLogger(ShiroHandler.class);
+	
+	@Autowired
+	private ShiroService shiroService;
+	
+	@RequestMapping("/testShiroServices")
+	public String testShiroServices() {
+		shiroService.testService();
+		return "redirect:/list.jsp";
+	}
 
 	@RequestMapping("/login")
 	public String login(@RequestParam("username") String username, @RequestParam("password") String password) {

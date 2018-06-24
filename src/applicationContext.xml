@@ -3,6 +3,8 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+	<bean id="shiroService"
+		class="com.ban.shiro.services.ShiroService"></bean>
 
 	<!-- 1、配置SecurityManage -->
 	<bean id="securityManager"
@@ -73,6 +75,7 @@
 		<property name="loginUrl" value="/login.jsp" />
 		<property name="successUrl" value="/list.jsp" />
 		<property name="unauthorizedUrl" value="/unauthorized.jsp" />
+		 <property name="filterChainDefinitionMap" ref="filterChainDefinitionMap"></property> 
 		<!-- The 'filters' property is not necessary since any declared javax.servlet.Filter 
 			bean defined will be automatically acquired and available via its beanName 
 			in chain definitions, but you can perform overrides or parent/child consolidated 
@@ -80,19 +83,21 @@
 		<!-- <property name="filters"> <util:map> <entry key="aName" value-ref="someFilterPojo"/> 
 			</util:map> </property> -->
 		<!-- 配置哪些页面需要被保护，以及访问这些页面需要的权限 1）anon 可以被匿名访问 2)authc 必须认证之后才能访问 -->
-		<property name="filterChainDefinitions">
-			<value>
-				/login.jsp = anon
-				/shiro/login = anon
-				/shiro/logout = logout
-				/user.jsp = roles[user]
+
+		<!-- <property name="filterChainDefinitions">
+			<value> /login.jsp = anon
+				/shiro/login = anon 
+				/shiro/logout = logout 
+				/user.jsp = roles[user] 
 				/admin.jsp = roles[admin]
-				
-				
-				#everything else requires authentication:
+				#everything else requires authentication: 
 				/** = authc
 			</value>
-		</property>
+		</property> -->
 	</bean>
+	<bean id="filterChainDefinitionMap" factory-bean="filterChainDefinitionMapFactory" 
+		factory-method="buildFilterChainDefinitionMap"></bean> 
+		
+		<bean id="filterChainDefinitionMapFactory" class="com.ban.shiro.factory.FilterChainDefinitionMap"></bean> 
 
 </beans>

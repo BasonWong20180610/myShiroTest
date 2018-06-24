@@ -14,5 +14,7 @@
 	<a href="user.jsp">user page</a>
 	<br><br>
 	<a href="shiro/logout">Logout</a>
+	<br><br>
+	<a href="shiro/testShiroServices">Test ShiroAnnotation</a>
 </body>
 </html>
