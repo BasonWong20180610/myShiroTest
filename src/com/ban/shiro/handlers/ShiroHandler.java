@@ -1,5 +1,7 @@
 package com.ban.shiro.handlers;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -26,7 +28,8 @@ public class ShiroHandler {
 	private ShiroService shiroService;
 	
 	@RequestMapping("/testShiroServices")
-	public String testShiroServices() {
+	public String testShiroServices(HttpSession session) {
+		session.setAttribute("key", "1234567");
 		shiroService.testService();
 		return "redirect:/list.jsp";
 	}
